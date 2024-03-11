@@ -1,27 +1,7 @@
-# Readme for ICSSTool
-This file contains notes and issues for the ICSSTool.
-For assignment instructions, see [ASSIGNMENT.md](ASSIGNMENT.md)
-This tutorial is tested with Java version 13 (OpenJDK), IntelliJ and Maven. To enable instructors to assess your work you will need to keep your solution OpenJDK 13 compliant. Oracle or other distributions of the Java SDK/Runtime are not allowed.
+# Readme for B_Compiler assignment
 
-## Running ICSSTool
-ICSSTool is a `pom.xml` based, Maven-runnable application.
-You can compile the application with the following command:
-
-```mvn compile```
-
-then run it with either
-
-```mvn exec:java``` 
-or
-```mvn javfx:run```
-
-Maven will automatically generate/update the parser from the supplied g4 file.
-
-You can also run the application from an IDE, e.g. IntellIJ. To do so, import ICSSTool as Maven project. 
-When you make changes to the .g4 file make sure you run `mvn generate-sources` prior to compiling. Most IDE's do not update the ANLTR parser automatically.
-
-Since Java is modular, JavaFX is not bundled by default. Depending on your IDE you may need to download JavaFX and add it to your module path. See also: https://openjfx.io/openjfx-docs/
-
-## Known issues
-* Packaging works, but running the JAR standalone can be troublesome because of the JavaFX and ANLTR-runtime dependencies. You can uncomment the `maven-shade-plugin` in `pom.xml` to create a (huge) fat JAR. It removes module encapsulation which will trigger a warning.
-* ICSSTool comes with tests to verify the AST based on sample input files. These are not true unit tests; they are included to help you verify your use of the AST.
+This repository is a fork of a template project that was made for me by my university (HAN University of applied sciences).
+The assignment is to make a compiler with help of ANTLR4. For the assignment I have to implement the grammar for ICSS.
+This is the direct translation of the assignment description:
+"In this assignment you will create your own CSS dialect: ICSS-20-SEP. An informal description of this language can be found in Appendix A. Read this description carefully! In this assignment you will continue to build an interactive Java application: the ICSSTool. This tool is an interactive compiler. You can interactively edit ICSS in it and compile it step by step to CSS. You can then export this CSS. You will receive the framework for the ICSS tool as starting code. The GUI has already been created and all components are present in minimal form. The assignment consists of completing the tool through a series of partial assignments."
+(full assignment details found in ASSIGNMENT.md)
