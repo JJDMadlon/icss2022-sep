@@ -45,16 +45,14 @@ ASSIGNMENT_OPERATOR: ':=';
 
 
 //--- PARSER: ---
-stylesheet: variable* class+;
+stylesheet: variable* selector+;
+variable: CAPITAL_IDENT ASSIGNMENT_OPERATOR literal SEMICOLON;
 
-variable: CAPITAL_IDENT ASSIGNMENT_OPERATOR value SEMICOLON;
+selector: (LOWER_IDENT | ID_IDENT | CLASS_IDENT) OPEN_BRACE decleration+ CLOSE_BRACE;
 
-class: classID OPEN_BRACE rule+ CLOSE_BRACE;
-classID: LOWER_IDENT | ID_IDENT | CLASS_IDENT;
+decleration: property | statement;
+statement: IF BOX_BRACKET_OPEN CAPITAL_IDENT BOX_BRACKET_CLOSE OPEN_BRACE decleration+ CLOSE_BRACE (ELSE OPEN_BRACE decleration+ CLOSE_BRACE)?;
+property: LOWER_IDENT COLON literal SEMICOLON;
 
-rule: property | ifStatement;
-ifStatement: IF BOX_BRACKET_OPEN CAPITAL_IDENT BOX_BRACKET_CLOSE OPEN_BRACE rule+ CLOSE_BRACE (ELSE OPEN_BRACE rule+ CLOSE_BRACE)?;
-property: LOWER_IDENT COLON value SEMICOLON;
-
-value: COLOR | width| TRUE | FALSE | CAPITAL_IDENT;
+literal: COLOR | width| TRUE | FALSE | CAPITAL_IDENT;
 width: (SCALAR | PIXELSIZE | PERCENTAGE | CAPITAL_IDENT) ((PLUS | MIN | MUL) (SCALAR | PIXELSIZE))*;
