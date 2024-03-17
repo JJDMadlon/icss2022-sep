@@ -45,15 +45,13 @@ ASSIGNMENT_OPERATOR: ':=';
 
 
 //--- PARSER: ---
-stylesheet: variableDeclaration* selector* ;
+stylesheet: variableDeclaration* styleRule* ;
 
 variableDeclaration: CAPITAL_IDENT ASSIGNMENT_OPERATOR literal SEMICOLON ;
 
-selector: (tagSelector | classSelector | idSelector) OPEN_BRACE declaration+ CLOSE_BRACE ;
+styleRule: selector OPEN_BRACE declaration+ CLOSE_BRACE ;
 
-tagSelector: LOWER_IDENT ;
-classSelector: CLASS_IDENT ;
-idSelector: ID_IDENT ;
+selector: LOWER_IDENT | CLASS_IDENT | ID_IDENT ;
 
 declaration: property SEMICOLON | statement ;
 
