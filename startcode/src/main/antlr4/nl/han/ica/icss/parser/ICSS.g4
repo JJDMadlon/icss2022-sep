@@ -45,14 +45,24 @@ ASSIGNMENT_OPERATOR: ':=';
 
 
 //--- PARSER: ---
-stylesheet: variable* selector+;
-variable: CAPITAL_IDENT ASSIGNMENT_OPERATOR literal SEMICOLON;
+stylesheet: variableDeclaration* selector* ;
 
-selector: (LOWER_IDENT | ID_IDENT | CLASS_IDENT) OPEN_BRACE decleration+ CLOSE_BRACE;
+variableDeclaration: CAPITAL_IDENT ASSIGNMENT_OPERATOR literal SEMICOLON ;
 
-decleration: property | statement;
-statement: IF BOX_BRACKET_OPEN CAPITAL_IDENT BOX_BRACKET_CLOSE OPEN_BRACE decleration+ CLOSE_BRACE (ELSE OPEN_BRACE decleration+ CLOSE_BRACE)?;
-property: LOWER_IDENT COLON literal SEMICOLON;
+selector: (tagSelector | classSelector | idSelector) OPEN_BRACE declaration+ CLOSE_BRACE ;
 
-literal: COLOR | width| TRUE | FALSE | CAPITAL_IDENT;
-width: (SCALAR | PIXELSIZE | PERCENTAGE | CAPITAL_IDENT) ((PLUS | MIN | MUL) (SCALAR | PIXELSIZE))*;
+tagSelector: LOWER_IDENT ;
+classSelector: CLASS_IDENT ;
+idSelector: ID_IDENT ;
+
+declaration: property SEMICOLON | statement ;
+
+property: LOWER_IDENT COLON expression ;
+
+statement: IF BOX_BRACKET_OPEN expression BOX_BRACKET_CLOSE OPEN_BRACE declaration+ CLOSE_BRACE (ELSE OPEN_BRACE declaration+ CLOSE_BRACE)? ;
+
+expression: expression (PLUS | MIN) expression | literal | CAPITAL_IDENT;
+
+literal: COLOR | PIXELSIZE | PERCENTAGE | SCALAR | booleanLiteral ;
+
+booleanLiteral: TRUE | FALSE ;

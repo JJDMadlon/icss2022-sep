@@ -35,19 +35,19 @@ public class ASTListener extends ICSSBaseListener {
 
 	@Override
 	public void exitStylesheet(ICSSParser.StylesheetContext context) {
-		Stylesheet sheet = (Stylesheet) currentContainer.pop();
-		ast.root = sheet;
+		ast.root = (Stylesheet) currentContainer.pop();
 	}
 
 	@Override
-	public void enterTagSelector(ICSSParser.TagSelectorContext context) {
-		TagSelector tagSelector = new TagSelector(context.getChild(0).getText());
-		currentContainer.push(tagSelector);
+	public void enterSelector(ICSSParser.SelectorContext context) {
+		Selector selector = new Selector();
+		currentContainer.peek().addChild(selector);
+		currentContainer.push(selector);
 	}
 
 	@Override
-	public void exitTagSelector(ICSSParser.TagSelectorContext context) {
-		TagSelector tagSelector = (TagSelector) currentContainer.pop();
-		currentContainer.peek().addChild(tagSelector);
+	public void exitSelector(ICSSParser.SelectorContext context) {
+		currentContainer.pop();
 	}
+
 }
