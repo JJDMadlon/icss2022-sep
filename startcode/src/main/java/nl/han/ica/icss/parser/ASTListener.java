@@ -38,16 +38,4 @@ public class ASTListener extends ICSSBaseListener {
 		ast.root = (Stylesheet) currentContainer.pop();
 	}
 
-	@Override
-	public void enterSelector(ICSSParser.SelectorContext context) {
-		Selector selector = new Selector();
-		currentContainer.peek().addChild(selector);
-		currentContainer.push(selector);
-	}
-
-	@Override
-	public void exitSelector(ICSSParser.SelectorContext context) {
-		currentContainer.pop();
-	}
-
 }
