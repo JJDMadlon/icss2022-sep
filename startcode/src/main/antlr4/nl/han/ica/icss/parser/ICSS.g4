@@ -53,9 +53,7 @@ styleRule: selector OPEN_BRACE declaration+ CLOSE_BRACE ;
 
 selector: LOWER_IDENT | CLASS_IDENT | ID_IDENT ;
 
-declaration: property SEMICOLON | statement ;
-
-property: LOWER_IDENT COLON expression ;
+declaration: LOWER_IDENT COLON expression SEMICOLON | statement ;
 
 statement: IF BOX_BRACKET_OPEN expression BOX_BRACKET_CLOSE OPEN_BRACE declaration+ CLOSE_BRACE (ELSE OPEN_BRACE declaration+ CLOSE_BRACE)? ;
 
