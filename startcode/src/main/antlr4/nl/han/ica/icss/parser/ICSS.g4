@@ -47,7 +47,9 @@ ASSIGNMENT_OPERATOR: ':=';
 //--- PARSER: ---
 stylesheet: variableDeclaration* styleRule* ;
 
-variableDeclaration: CAPITAL_IDENT ASSIGNMENT_OPERATOR literal SEMICOLON ;
+variableDeclaration: variableReference ASSIGNMENT_OPERATOR literal SEMICOLON ;
+
+variableReference: CAPITAL_IDENT ;
 
 styleRule: selector OPEN_BRACE declaration+ CLOSE_BRACE ;
 
