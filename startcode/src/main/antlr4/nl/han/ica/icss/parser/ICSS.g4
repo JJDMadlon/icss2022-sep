@@ -50,14 +50,16 @@ stylesheet: variableAssignment* styleRule* ;
 variableReference: CAPITAL_IDENT ;
 variableAssignment: variableReference ASSIGNMENT_OPERATOR expression SEMICOLON ;
 
-styleRule: selector OPEN_BRACE declaration+ CLOSE_BRACE ;
+styleRule: selector OPEN_BRACE ruleBody CLOSE_BRACE ;
+
+ruleBody: (declaration | ifClause | variableAssignment)+ ;
 
 selector: LOWER_IDENT | CLASS_IDENT | ID_IDENT ;
 
 declaration: LOWER_IDENT COLON expression SEMICOLON | ifClause | variableAssignment ;
 
-ifClause: IF BOX_BRACKET_OPEN expression BOX_BRACKET_CLOSE OPEN_BRACE declaration+ CLOSE_BRACE elseClause? ;
-elseClause: ELSE OPEN_BRACE declaration+ CLOSE_BRACE ;
+ifClause: IF BOX_BRACKET_OPEN expression BOX_BRACKET_CLOSE OPEN_BRACE ruleBody CLOSE_BRACE elseClause? ;
+elseClause: ELSE OPEN_BRACE ruleBody CLOSE_BRACE ;
 
 expression: literal | expression (MUL) expression | expression (PLUS | MIN) expression ;
 
