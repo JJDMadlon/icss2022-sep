@@ -32,7 +32,8 @@ public class HANStack<T> implements IHANStack<ASTNode> {
         return stackList.getFirst();
     }
 
-    private boolean isEmpty() {
+    @Override
+    public boolean isEmpty() {
         return stackList.getSize() == 0;
     }
 }
