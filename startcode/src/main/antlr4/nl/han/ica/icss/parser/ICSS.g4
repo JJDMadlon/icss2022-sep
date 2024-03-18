@@ -47,22 +47,31 @@ ASSIGNMENT_OPERATOR: ':=';
 //--- PARSER: ---
 stylesheet: variableAssignment* styleRule* ;
 
+//The 2 line below create a variable such as: LinkColor := #ff0000;
 variableReference: CAPITAL_IDENT ;
 variableAssignment: variableReference ASSIGNMENT_OPERATOR expression SEMICOLON ;
 
+//A style rule is a selector followed by a rule body such as: p { color: #ff0000; }
 styleRule: selector OPEN_BRACE ruleBody CLOSE_BRACE ;
 
+//A rule body is what is between {} in a styleRule
 ruleBody: (declaration | ifClause | variableAssignment)+ ;
 
+//A selector is a reference to a class, id or tag such as: h1, .id, #tag
 selector: LOWER_IDENT | CLASS_IDENT | ID_IDENT ;
 
-declaration: LOWER_IDENT COLON expression SEMICOLON | ifClause | variableAssignment ;
+//A declaration is a property followed by a value such as: color: #ff0000;
+declaration: LOWER_IDENT COLON expression SEMICOLON ;
 
-ifClause: IF BOX_BRACKET_OPEN expression BOX_BRACKET_CLOSE OPEN_BRACE ruleBody CLOSE_BRACE elseClause? ;
+//An if clause is a conditional statement such as: if [ChanceColor] { color: #ffffff } else { [color: #0000ff] }
+ifClause: IF BOX_BRACKET_OPEN variableReference BOX_BRACKET_CLOSE OPEN_BRACE ruleBody CLOSE_BRACE elseClause? ;
 elseClause: ELSE OPEN_BRACE ruleBody CLOSE_BRACE ;
 
+//An expression is the equivalent of a formula in css such as: 10px + 20px
 expression: literal | expression (MUL) expression | expression (PLUS | MIN) expression ;
 
+//A literal is a single value such as: #ff0000, 10px, 10%
 literal: COLOR | PIXELSIZE | PERCENTAGE | SCALAR | booleanLiteral | CAPITAL_IDENT ;
 
+//The boolean literal is a true or false value
 booleanLiteral: TRUE | FALSE ;

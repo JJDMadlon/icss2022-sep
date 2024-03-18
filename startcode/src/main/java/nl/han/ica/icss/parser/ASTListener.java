@@ -167,6 +167,29 @@ public class ASTListener extends ICSSBaseListener {
 		currentContainer.peek().addChild(expression);
 	}
 
+	@Override
+	public void enterIfClause(ICSSParser.IfClauseContext context) {
+		currentContainer.push(new IfClause());
+		//printStack(currentContainer);
+	}
+
+	@Override
+	public void exitIfClause(ICSSParser.IfClauseContext context) {
+		IfClause ifClause = (IfClause) currentContainer.pop();
+		currentContainer.peek().addChild(ifClause);
+	}
+
+	@Override
+	public void enterElseClause(ICSSParser.ElseClauseContext context) {
+		currentContainer.push(new ElseClause());
+	}
+
+	@Override
+	public void exitElseClause(ICSSParser.ElseClauseContext context) {
+		ElseClause elseClause = (ElseClause) currentContainer.pop();
+		currentContainer.peek().addChild(elseClause);
+	}
+
 	public static void printStack(IHANStack<ASTNode> stack) {
 		IHANStack<ASTNode> tempStack = new HANStack<>();
 		System.out.println("Printing stack from top to bottom:");
