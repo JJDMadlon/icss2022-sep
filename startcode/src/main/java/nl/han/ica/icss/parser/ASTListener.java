@@ -97,7 +97,7 @@ public class ASTListener extends ICSSBaseListener {
 		else if(context.getText().endsWith("%")) {
 			currentContainer.push(new PercentageLiteral(context.getText()));
 		}
-		else if(context.getText().endsWith("em")) {
+		else if(context.getText().matches("[0-9]+(\\.[0-9]+)?")) {
 			currentContainer.push(new ScalarLiteral(context.getText()));
 		}
 		else if(context.getText().matches("TRUE") || context.getText().matches("FALSE")) {
