@@ -8,32 +8,39 @@ import nl.han.ica.icss.ast.types.ExpressionType;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-
 public class Checker {
 
     private LinkedList<HashMap<String, ExpressionType>> variableTypes;
 
     public void check(AST ast) {
         this.variableTypes = new LinkedList<>();
-        variableTypes.add(new HashMap<>());
 
         checkStyleSheet(ast.root);
     }
 
     private void checkStyleSheet(Stylesheet sheet) {
+        variableTypes.add(new HashMap<>());
+
         for(ASTNode child : sheet.getChildren()) {
-            if(child instanceof Stylerule) {
+            if (child instanceof VariableAssignment) {
+                checkVariableAssignment((VariableAssignment) child);
+            }
+            else if(child instanceof Stylerule) {
                 variableTypes.add(new HashMap<>());
                 checkStyleRule((Stylerule) child);
-            } else if (child instanceof VariableAssignment) {
-                checkVariableAssignment((VariableAssignment) child);
+                variableTypes.removeLast();
             }
         }
     }
 
     private void checkVariableAssignment(VariableAssignment variableAssignment) {
-        ExpressionType expressionType = checkExpressionType(variableAssignment.expression);
-        variableTypes.getLast().put(variableAssignment.name.name, expressionType);
+        if(variableAssignment.expression instanceof VariableReference) {
+            checkVariableReference(variableAssignment.name);
+        }
+        else {
+            ExpressionType expressionType = checkExpressionType(variableAssignment.expression);
+            variableTypes.getLast().put(variableAssignment.name.name, expressionType);
+        }
     }
 
     private ExpressionType checkExpressionType(Expression expression) {
@@ -61,23 +68,30 @@ public class Checker {
     }
 
     private void checkDeclaration(Declaration declaration) {
-        if(declaration.property.name.equals("width")) {
-            if(!(declaration.expression instanceof PixelLiteral)) {
-                declaration.setError("Width must be a pixel size ie: 100px");
-            }
+        if(declaration.expression instanceof VariableReference) {
+            checkVariableReference((VariableReference) declaration.expression);
         }
         else if(declaration.property.name.endsWith(("color"))) {
             if(!(declaration.expression instanceof ColorLiteral)) {
                 declaration.setError("Color must be a hex code ie: #ffffff");
             }
         }
-        else if(declaration instanceof ex) {
-            if(!(declaration.expression instanceof ColorLiteral)) {
-                declaration.setError("Background-color must be a hex code ie: #ffffff");
+        else if(declaration.property.name.equals("width")) {
+            if(!(declaration.expression instanceof PixelLiteral)) {
+                declaration.setError("Width must be a pixel size ie: 100px");
             }
         }
     }
 
+    private void checkVariableReference(VariableReference variableReference) {
+        for (HashMap<String, ExpressionType> variableType : variableTypes) {
+            if (variableType.containsKey(variableReference.name)) {
+                return;
+            } else {
+                variableReference.setError(variableReference.name + " is not defined");
+            }
+        }
+    }
 
 
 }

@@ -71,7 +71,7 @@ elseClause: ELSE OPEN_BRACE ruleBody CLOSE_BRACE ;
 expression: literal | expression (MUL) expression | expression (PLUS | MIN) expression ;
 
 //A literal is a single value such as: #ff0000, 10px, 10%
-literal: COLOR | PIXELSIZE | PERCENTAGE | SCALAR | booleanLiteral | CAPITAL_IDENT ;
+literal: COLOR | PIXELSIZE | PERCENTAGE | SCALAR | booleanLiteral | variableReference ;
 
 //The boolean literal is a true or false value
 booleanLiteral: TRUE | FALSE ;

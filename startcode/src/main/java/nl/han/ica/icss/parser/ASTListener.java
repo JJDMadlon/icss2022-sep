@@ -103,7 +103,7 @@ public class ASTListener extends ICSSBaseListener {
 		else if(context.getText().matches("TRUE") || context.getText().matches("FALSE")) {
 			currentContainer.push(new BoolLiteral(context.getText()));
 		}
-		else {
+		else if(context.getText().matches("[a-zA-Z]+")) {
 			currentContainer.push(new VariableReference(context.getText()));
 		}
 	}
