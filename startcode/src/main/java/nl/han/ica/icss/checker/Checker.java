@@ -35,7 +35,17 @@ public class Checker {
 
     private void checkVariableAssignment(VariableAssignment variableAssignment) {
         if(variableAssignment.expression instanceof VariableReference) {
-            checkVariableReference(variableAssignment.name);
+            if(checkVariableReference((VariableReference) variableAssignment.expression) != ExpressionType.UNDEFINED) {
+                for (HashMap<String, ExpressionType> currentScope : variableTypes) {
+                    if (currentScope.containsKey(((VariableReference) variableAssignment.expression).name)) {
+                        currentScope.put(variableAssignment.name.name, currentScope.get(((VariableReference) variableAssignment.expression).name));
+                        return;
+                    }
+                }
+            }
+        }
+        else if(variableAssignment.expression instanceof Operation){
+            checkOperation((Operation) variableAssignment.expression);
         }
         else {
             ExpressionType expressionType = checkExpressionType(variableAssignment.expression);
@@ -43,55 +53,114 @@ public class Checker {
         }
     }
 
-    private ExpressionType checkExpressionType(Expression expression) {
-        if (expression instanceof PercentageLiteral) {
-            return ExpressionType.PERCENTAGE;
-        } else if (expression instanceof PixelLiteral) {
-            return ExpressionType.PIXEL;
-        } else if (expression instanceof ColorLiteral) {
-            return ExpressionType.COLOR;
-        } else if (expression instanceof ScalarLiteral) {
-            return ExpressionType.SCALAR;
-        } else if (expression instanceof BoolLiteral) {
-            return ExpressionType.BOOL;
-        } else {
-            return ExpressionType.UNDEFINED;
+    private ExpressionType checkVariableReference(VariableReference variableReference) {
+        for (HashMap<String, ExpressionType> currentScope : variableTypes) {
+            if (currentScope.containsKey(variableReference.name)) {
+                return currentScope.get(variableReference.name);
+            }
         }
+        variableReference.setError(variableReference.name + " is not defined");
+        return ExpressionType.UNDEFINED;
     }
 
     private void checkStyleRule(Stylerule styleRule) {
+        checkStyleBody(styleRule);
+    }
+
+    private void checkStyleBody(Stylerule styleRule) {
         for(ASTNode child : styleRule.getChildren()) {
             if(child instanceof Declaration) {
                 checkDeclaration((Declaration) child);
             }
+            else if(child instanceof VariableAssignment) {
+                checkVariableAssignment((VariableAssignment) child);
+            }
+            else if(child instanceof IfClause) {
+                checkIfClause((IfClause) child);
+            }
+        }
+    }
+
+    private ExpressionType checkExpressionType(Expression expression) {
+        if(expression instanceof VariableReference) {
+            return checkVariableReference((VariableReference) expression);
+        }
+        else if (expression instanceof PercentageLiteral) {
+            return ExpressionType.PERCENTAGE;
+        }
+        else if (expression instanceof PixelLiteral) {
+            return ExpressionType.PIXEL;
+        }
+        else if (expression instanceof ColorLiteral) {
+            return ExpressionType.COLOR;
+        }
+        else if (expression instanceof ScalarLiteral) {
+            return ExpressionType.SCALAR;
+        }
+        else if (expression instanceof BoolLiteral) {
+            return ExpressionType.BOOL;
+        }
+        else {
+            return ExpressionType.UNDEFINED;
         }
     }
 
     private void checkDeclaration(Declaration declaration) {
-        if(declaration.expression instanceof VariableReference) {
-            checkVariableReference((VariableReference) declaration.expression);
-        }
-        else if(declaration.property.name.endsWith(("color"))) {
-            if(!(declaration.expression instanceof ColorLiteral)) {
-                declaration.setError("Color must be a hex code ie: #ffffff");
+       ExpressionType expressionType = checkExpression(declaration.expression);
+
+       if(expressionType == ExpressionType.UNDEFINED) {
+           return;
+       }
+       if(declaration.property.name.endsWith(("color"))) {
+            if(expressionType != ExpressionType.COLOR) {
+                declaration.setError("Color must be a hex code");
             }
         }
         else if(declaration.property.name.equals("width")) {
-            if(!(declaration.expression instanceof PixelLiteral)) {
-                declaration.setError("Width must be a pixel size ie: 100px");
+            if(expressionType != ExpressionType.PIXEL && expressionType != ExpressionType.PERCENTAGE) {
+                declaration.setError("Width must be a pixel size or a percentage");
             }
+        }
+        else if(declaration.property.name.equals("height")) {
+            if(expressionType != ExpressionType.PIXEL && expressionType != ExpressionType.PERCENTAGE) {
+                declaration.setError("Height must be a pixel size or a percentage");
+            }
+       }
+    }
+
+    private ExpressionType checkExpression(Expression expression) {
+        if (expression instanceof Operation) {
+            return checkOperation((Operation) expression);
+        } else {
+            return checkExpressionType(expression);
         }
     }
 
-    private void checkVariableReference(VariableReference variableReference) {
-        for (HashMap<String, ExpressionType> variableType : variableTypes) {
-            if (variableType.containsKey(variableReference.name)) {
-                return;
-            } else {
-                variableReference.setError(variableReference.name + " is not defined");
-            }
+    private ExpressionType checkOperation(Operation operation) {
+        ExpressionType left;
+        ExpressionType right;
+
+        if(operation.lhs instanceof Operation){
+            left = checkOperation((Operation) operation.lhs);
+        } else {
+            left = checkExpressionType(operation.lhs);
         }
+
+        if(operation.rhs instanceof Operation){
+            right = checkOperation((Operation) operation.rhs);
+        } else {
+            right = checkExpressionType(operation.rhs);
+        }
+
+        if(left == ExpressionType.COLOR || right == ExpressionType.COLOR) {
+            operation.setError("Cannot perform operation on color");
+            return ExpressionType.UNDEFINED;
+        }
+
+        return left;
     }
 
+    private void checkIfClause(IfClause child) {
+    }
 
 }
