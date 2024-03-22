@@ -1,10 +1,9 @@
 package nl.han.ica.icss.checker;
 
-import nl.han.ica.datastructures.IHANLinkedList;
 import nl.han.ica.icss.ast.*;
 import nl.han.ica.icss.ast.literals.*;
 import nl.han.ica.icss.ast.types.ExpressionType;
-
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -64,11 +63,11 @@ public class Checker {
     }
 
     private void checkStyleRule(Stylerule styleRule) {
-        checkStyleBody(styleRule);
+        checkStyleBody(styleRule.body);
     }
 
-    private void checkStyleBody(Stylerule styleRule) {
-        for(ASTNode child : styleRule.getChildren()) {
+    private void checkStyleBody(ArrayList<ASTNode> styleRule) {
+        for(ASTNode child : styleRule) {
             if(child instanceof Declaration) {
                 checkDeclaration((Declaration) child);
             }
@@ -160,7 +159,21 @@ public class Checker {
         return left;
     }
 
-    private void checkIfClause(IfClause child) {
+    private void checkIfClause(IfClause ifClause) {
+        variableTypes.add(new HashMap<>());
+        if(checkExpressionType(ifClause.conditionalExpression) != ExpressionType.BOOL) {
+            ifClause.setError("If clause must be a boolean");
+        }
+
+        checkStyleBody(ifClause.body);
+
+        variableTypes.removeLast();
+
+        if(ifClause.elseClause != null) {
+            variableTypes.add(new HashMap<>());
+            checkStyleBody(ifClause.elseClause.body);
+            variableTypes.removeLast();
+        }
     }
 
 }
