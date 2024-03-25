@@ -84,26 +84,6 @@ public class Evaluator implements Transform {
         return nodesToRemove;
     }
 
-    private LinkedList<ASTNode> evaluateStyleBody(Stylerule rule, ArrayList<ASTNode> body) {
-        variableValues.addFirst(new HashMap<>());
-        LinkedList<ASTNode> nodesToAdd = new LinkedList<>();
-        LinkedList<ASTNode> nodesToRemove = new LinkedList<>();
-        for (ASTNode node : body) {
-            if (node instanceof VariableAssignment) {
-                nodesToRemove.addAll(evaluateVariableAssignment((VariableAssignment) node));
-            } else if (node instanceof IfClause) {
-                evaluateIfClause(rule, (IfClause) node, nodesToAdd, nodesToRemove);
-            } else if (node instanceof Declaration) {
-                evaluateDeclaration((Declaration) node);
-            }
-        }
-        for (ASTNode node : nodesToRemove) {
-            rule.removeChild(node);
-        }
-        variableValues.removeFirst();
-        return nodesToAdd;
-    }
-
     private void evaluateStylerule(Stylerule rule) {
         LinkedList<ASTNode> nodesToAdd = evaluateStyleBody(rule, rule.body);
         for (ASTNode node : nodesToAdd) {
@@ -124,6 +104,26 @@ public class Evaluator implements Transform {
         }
     }
 
+    private LinkedList<ASTNode> evaluateStyleBody(Stylerule rule, ArrayList<ASTNode> body) {
+        variableValues.addFirst(new HashMap<>());
+        LinkedList<ASTNode> nodesToAdd = new LinkedList<>();
+        LinkedList<ASTNode> nodesToRemove = new LinkedList<>();
+        for (ASTNode node : body) {
+            if (node instanceof VariableAssignment) {
+                nodesToRemove.addAll(evaluateVariableAssignment((VariableAssignment) node));
+            } else if (node instanceof IfClause) {
+                evaluateIfClause(rule, (IfClause) node, nodesToAdd, nodesToRemove);
+            } else if (node instanceof Declaration) {
+                evaluateDeclaration((Declaration) node);
+            }
+        }
+        for (ASTNode node : nodesToRemove) {
+            rule.removeChild(node);
+        }
+        variableValues.removeFirst();
+        return nodesToAdd;
+    }
+
     private void evaluateDeclaration(Declaration declaration) {
         if (declaration.expression instanceof Operation) {
             declaration.expression = evaluateOperation((Operation) declaration.expression);
@@ -140,17 +140,11 @@ public class Evaluator implements Transform {
     }
 
     private Literal evaluateOperation(Operation operation) {
-        evluateAllChilderenOfOperation(operation);
-
-        return operation.calculate();
-    }
-
-    private void evluateAllChilderenOfOperation(Operation operation) {
         if(operation.lhs instanceof Operation) {
-            evluateAllChilderenOfOperation((Operation) operation.lhs);
+            evaluateOperation((Operation) operation.lhs);
         }
         if(operation.rhs instanceof Operation) {
-            evluateAllChilderenOfOperation((Operation) operation.rhs);
+            evaluateOperation((Operation) operation.rhs);
         }
         if(operation.lhs instanceof VariableReference){
             replaceVariableReference(operation, operation.lhs);
@@ -158,6 +152,8 @@ public class Evaluator implements Transform {
         if(operation.rhs instanceof VariableReference) {
             replaceVariableReference(operation, operation.rhs);
         }
+
+        return operation.calculate();
     }
 
     private void replaceVariableReference(Operation operation, Expression expression) {
@@ -182,7 +178,7 @@ public class Evaluator implements Transform {
     private void evaluateIfClause(Stylerule rule, IfClause ifClause, LinkedList<ASTNode> nodesToAdd, LinkedList<ASTNode> nodesToRemove){
         replaceBoolVariableReference(ifClause, ifClause.conditionalExpression);
         LinkedList<ASTNode> tempNodesToAdd = new LinkedList<>();
-        if(getBoolFromExpression(ifClause.conditionalExpression)){
+        if(((BoolLiteral) ifClause.conditionalExpression).value){
             tempNodesToAdd.addAll(ifClause.body);
         }
         else if(ifClause.elseClause != null){
@@ -195,13 +191,6 @@ public class Evaluator implements Transform {
         }
 
         nodesToAdd.addAll(tempNodesToAdd);
-    }
-
-    private boolean getBoolFromExpression(Expression conditionalExpression) {
-        if(conditionalExpression instanceof BoolLiteral){
-            return ((BoolLiteral) conditionalExpression).value;
-        }
-        return false;
     }
 
 }

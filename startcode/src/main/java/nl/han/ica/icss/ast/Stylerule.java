@@ -50,6 +50,12 @@ public class Stylerule extends ASTNode {
 	}
 
 	@Override
+	public ASTNode removeChild(ASTNode child) {
+		body.remove(child);
+		return this;
+	}
+
+	@Override
 	public int hashCode() {
 		return Objects.hash(selectors, body);
 	}
