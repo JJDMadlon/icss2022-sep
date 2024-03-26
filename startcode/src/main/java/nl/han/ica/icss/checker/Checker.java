@@ -108,22 +108,27 @@ public class Checker {
        ExpressionType expressionType = checkExpression(declaration.expression);
 
        if(expressionType == ExpressionType.UNDEFINED) {
+           declaration.setError("Undefined expression type");
            return;
        }
-       if(declaration.property.name.endsWith(("color"))) {
+
+       String propertyName = declaration.property.name;
+       if(propertyName.matches(("color")) || propertyName.matches(("background-color"))) {
             if(expressionType != ExpressionType.COLOR) {
                 declaration.setError("Color must be a hex code");
             }
         }
-        else if(declaration.property.name.equals("width")) {
+        else if(propertyName.matches("width")) {
             if(expressionType != ExpressionType.PIXEL && expressionType != ExpressionType.PERCENTAGE) {
                 declaration.setError("Width must be a pixel size or a percentage");
             }
         }
-        else if(declaration.property.name.equals("height")) {
+        else if(propertyName.matches("height")) {
             if(expressionType != ExpressionType.PIXEL && expressionType != ExpressionType.PERCENTAGE) {
                 declaration.setError("Height must be a pixel size or a percentage");
             }
+       } else {
+           declaration.setError("Unknown property");
        }
     }
 
