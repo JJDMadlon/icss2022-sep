@@ -2,10 +2,15 @@ package nl.han.ica.icss.checker;
 
 import nl.han.ica.icss.ast.*;
 import nl.han.ica.icss.ast.literals.*;
+import nl.han.ica.icss.ast.operations.AddOperation;
+import nl.han.ica.icss.ast.operations.MultiplyOperation;
+import nl.han.ica.icss.ast.operations.SubtractOperation;
 import nl.han.ica.icss.ast.types.ExpressionType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+
+import static java.lang.Boolean.FALSE;
 
 public class Checker {
 
@@ -156,12 +161,79 @@ public class Checker {
             right = checkExpressionType(operation.rhs);
         }
 
-        if(left == ExpressionType.COLOR || right == ExpressionType.COLOR) {
-            operation.setError("Cannot perform operation on color");
-            return ExpressionType.UNDEFINED;
+        Expression leftHandSide = operation.lhs;
+        Expression rightHandSide = operation.rhs;
+        if(leftHandSide instanceof VariableReference) {
+            leftHandSide = getVariableReference((VariableReference) leftHandSide);
+        }
+        if(leftHandSide instanceof VariableReference) {
+            rightHandSide = getVariableReference((VariableReference) rightHandSide);
         }
 
+        checkCalculation(operation, leftHandSide, rightHandSide);
+
         return left;
+    }
+
+    private Expression getVariableReference(VariableReference variableReference) {
+        for(HashMap<String, ExpressionType> currentScope : variableTypes) {
+            if(currentScope.containsKey(variableReference.name)) {
+                ExpressionType expressionType = currentScope.get(variableReference.name);
+                if(expressionType == ExpressionType.PIXEL) {
+                    return new PixelLiteral(variableReference.getValue());
+                }
+                else if(expressionType == ExpressionType.PERCENTAGE) {
+                    return new PercentageLiteral(variableReference.getValue());
+                }
+                else if(expressionType == ExpressionType.SCALAR) {
+                    return new ScalarLiteral(variableReference.getValue());
+                }
+                else if(expressionType == ExpressionType.BOOL) {
+                    return new BoolLiteral(FALSE);
+                }
+                else if(expressionType == ExpressionType.COLOR) {
+                    return new ColorLiteral("#000000");
+                }
+            }
+        }
+        return null;
+    }
+
+    private void checkCalculation(Operation operation, Expression left, Expression right) {
+        if(left instanceof BoolLiteral || right instanceof BoolLiteral || left instanceof ColorLiteral || right instanceof ColorLiteral) {
+            operation.setError("Cannot perform calculation on color or boolean");
+        }
+
+        if(operation instanceof AddOperation || operation instanceof SubtractOperation) {
+            if(!validOperationTypes(left) || !validOperationTypes(right)) {
+                operation.setError("Addition and subtraction can only be performed on pixel or percentage values or other operations");
+            }
+            else if((left instanceof PercentageLiteral && right instanceof PixelLiteral) || (left instanceof PixelLiteral && right instanceof PercentageLiteral)) {
+                operation.setError("Addition and subtraction can only be performed on the same type of literal");
+            }
+        }
+        else if(operation instanceof MultiplyOperation) {
+            if(left instanceof ScalarLiteral) {
+                if(!validOperationTypes(right)) {
+                    operation.setError("Multiplication must have at least one pixel or percentage value");
+                }
+                else if(right instanceof ScalarLiteral) {
+                    operation.setError("Multiplication can only have one scalar value");
+                }
+            }
+            if(right instanceof ScalarLiteral) {
+                if(!validOperationTypes(left)) {
+                    operation.setError("Multiplication must have at least one pixel or percentage value");
+                }
+            }
+            if(validOperationTypes(left) && validOperationTypes(right)) {
+                operation.setError("Multiplication must have at least one scalar value");
+            }
+        }
+    }
+
+    private boolean validOperationTypes(Expression expression) {
+        return expression instanceof PixelLiteral || expression instanceof PercentageLiteral || expression instanceof AddOperation || expression instanceof MultiplyOperation || expression instanceof SubtractOperation;
     }
 
     private void checkIfClause(IfClause ifClause) {
