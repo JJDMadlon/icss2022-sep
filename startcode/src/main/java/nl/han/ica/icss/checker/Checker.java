@@ -124,12 +124,12 @@ public class Checker {
             }
         }
         else if(propertyName.matches("width")) {
-            if(expressionType != ExpressionType.PIXEL && expressionType != ExpressionType.PERCENTAGE) {
+            if(expressionType != ExpressionType.PIXEL && expressionType != ExpressionType.PERCENTAGE && !(declaration.expression instanceof Operation)) {
                 declaration.setError("Width must be a pixel size or a percentage");
             }
         }
         else if(propertyName.matches("height")) {
-            if(expressionType != ExpressionType.PIXEL && expressionType != ExpressionType.PERCENTAGE) {
+            if(expressionType != ExpressionType.PIXEL && expressionType != ExpressionType.PERCENTAGE && !(declaration.expression instanceof Operation)) {
                 declaration.setError("Height must be a pixel size or a percentage");
             }
        } else {
