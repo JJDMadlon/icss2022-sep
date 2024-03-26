@@ -34,6 +34,16 @@ public class PercentageLiteral extends Literal {
 
     @Override
     public Literal calculate() {
-        return null;
+        return new PercentageLiteral(value);
+    }
+
+    @Override
+    public int getValue() {
+        return value;
+    }
+
+    @Override
+    public String toString() {
+        return value + "%";
     }
 }

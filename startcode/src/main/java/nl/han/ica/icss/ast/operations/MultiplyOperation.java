@@ -19,14 +19,12 @@ public class MultiplyOperation extends Operation {
         Expression CalculatedLhs = lhs.calculate();
         Expression CalculatedRhs = rhs.calculate();
 
-        if(CalculatedLhs instanceof ScalarLiteral && CalculatedRhs instanceof ScalarLiteral) {
-            return new ScalarLiteral(((ScalarLiteral) CalculatedRhs).value * ((ScalarLiteral) CalculatedLhs).value);
+
+        if ((CalculatedLhs instanceof PixelLiteral || CalculatedLhs instanceof ScalarLiteral) && (CalculatedRhs instanceof PixelLiteral || CalculatedRhs instanceof ScalarLiteral)) {
+            return new PixelLiteral(CalculatedLhs.getValue() * CalculatedRhs.getValue());
         }
-        if(CalculatedLhs instanceof PercentageLiteral && CalculatedRhs instanceof PercentageLiteral) {
-            return new PercentageLiteral(((PercentageLiteral) CalculatedLhs).value * ((PercentageLiteral) CalculatedRhs).value);
-        }
-        if(CalculatedLhs instanceof PixelLiteral && CalculatedRhs instanceof PixelLiteral) {
-            return new PixelLiteral(((PixelLiteral) CalculatedLhs).value * ((PixelLiteral) CalculatedRhs).value);
+        if ((CalculatedLhs instanceof PercentageLiteral || CalculatedLhs instanceof ScalarLiteral) && (CalculatedRhs instanceof PercentageLiteral || CalculatedRhs instanceof ScalarLiteral)) {
+            return new PercentageLiteral(CalculatedLhs.getValue() * CalculatedRhs.calculate().getValue());
         }
 
         return null;

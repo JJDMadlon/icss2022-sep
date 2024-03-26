@@ -55,4 +55,9 @@ public class Declaration extends ASTNode {
 	public int hashCode() {
 		return Objects.hash(property, expression);
 	}
+
+	@Override
+	public String toString() {
+		return property.toString() + ": " + expression.toString();
+	}
 }

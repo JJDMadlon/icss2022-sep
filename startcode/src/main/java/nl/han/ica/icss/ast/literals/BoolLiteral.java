@@ -36,4 +36,14 @@ public class BoolLiteral extends Literal {
     public Literal calculate() {
         return null;
     }
+
+    @Override
+    public int getValue() {
+        return value ? 1 : 0;
+    }
+
+    @Override
+    public String toString() {
+        return value ? "TRUE" : "FALSE";
+    }
 }

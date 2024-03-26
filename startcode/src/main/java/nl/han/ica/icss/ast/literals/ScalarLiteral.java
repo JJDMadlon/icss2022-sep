@@ -34,6 +34,16 @@ public class ScalarLiteral extends Literal {
 
     @Override
     public Literal calculate() {
-        return null;
+        return new ScalarLiteral(value);
+    }
+
+    @Override
+    public int getValue() {
+        return value;
+    }
+
+    @Override
+    public String toString() {
+        return Integer.toString(value);
     }
 }
